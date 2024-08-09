@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Math Questions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 80%;
+      margin: 5% auto;
+      background-color: #fff;
+      padding: 2% 1%;
+      border-radius: 2%;
+      box-shadow: 0 0 1em rgba(0, 0, 0, 0.1);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-items: center;
+    }
+
+    header img {
+      max-width: 15%;
+      margin-bottom: 1%;
+    }
+
+    header h1 {
+      font-size: 2em;
+      margin-bottom: 2%;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 2%;
+    }
+
+    select,
+    input[type="number"],
+    button {
+      width: 90%;
+      padding: 2%;
+      margin-bottom: 2%;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #question {
+      font-size: 1.5em;
+      margin-bottom: 2%;
+    }
+
+    #result {
+      margin-top: 4%;
+      font-weight: bold;
+    }
+
+    @media only screen and (min-width: 768px) {
+      .container {
+        width: 60%;
+      }
+
+      select,
+      input[type="number"],
+      button {
+        width: auto;
+      }
+    }
+
+    #previousAnswers {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #previousAnswers h2 {
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+
+    #previousAnswers p {
+      margin: 5px 0;
+    }
+
+    /* Additional styles for previous answers toggle */
+    #toggleButton {
+      margin-bottom: 10px;
+      padding: 8px 15px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #previousAnswers {
+      display: none;
+      flex-direction: column-reverse;
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #previousAnswers h2 {
+      order: 1;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+
+    #previousAnswers div {
+      margin: 5px 0;
+    }
+
+    #clearButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* Your existing CSS styles here */
+    /* Additional styles for progress bar */
+    .progress-container {
+      margin-top: 20px;
+      width: 80%;
+      height: 30px;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background-color: #3498db;
+      transition: width 0.5s ease-in-out;
+    }
+  </style>
+  <style>
+    /* Your CSS styles here */
+    /* Styling for records */
+    .records-container {
+      font-family: Arial, sans-serif;
+      margin: 10px 5px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      max-width: 600px;
+    }
+
+    .records-container h3 {
+      margin-top: 0;
+    }
+
+    .records-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .records-list li {
+      margin: 5px;
+    }
+  </style>
+  <style>
+    .notification {
+      display: block;
+      position: fixed;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: 500ms all;
+      background-color: #00E6FF;
+      padding: 5px 10px;
+      border: 2px solid #9AF0FF;
+      border-radius: 10px;
+      box-shadow: 1px 2px 5px rgba(0, 53, 74, 0.58);
+      text-align: center;
+      opacity: 0;
+    }
+
+    .show {
+      top: 20px;
+      opacity: 1;
+    }
+  </style>
+
+
+</head>
+
+<body>
+  <div class="notification" id="recordsClearedNotification">
+    All Records cleared successfully!
+  </div>
+
+  <div class="container">
+    <header>
+      <img src="Logo.png" alt="Logo">
+      <h1>Math Questions</h1>
+    </header>
+    <div class="question-section">
+      <label for="operation">Select an operation:</label>
+      <select id="operation">
+        <option value="addition">Addition (+)</option>
+        <option value="subtraction">Subtraction (-)</option>
+        <option value="multiplication">Multiplication (*)</option>
+        <option value="division">Division (/)</option>
+      </select>
+      <label for="difficulty">Select difficulty:</label>
+      <select id="difficulty">
+        <option value="1">1 Digit</option>
+        <option value="2">2 Digits</option>
+        <option value="3">3 Digits</option>
+        <option value="4">4 Digits</option>
+        <option value="5">5 Digits</option>
+      </select>
+      <div id="question"></div>
+      <input type="number" id="userAnswer" placeholder="Your Answer">
+      <button onclick="checkAnswer()">Submit</button>
+      <div id="result"></div>
+      <div id="timeTaken"></div>
+      <button id="toggleButton" onclick="togglePreviousAnswers()">Toggle Previous Answers</button>
+      <div id="previousAnswers">
+        <h2>Previous Answers:</h2>
+      </div>
+
+      <button id="clearButton" onclick="clearPreviousAnswers('true')">Clear Previous Answers</button>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar" id="successProgressBar" style="width: 0;"></div>
+      <p>Success Rate (Last 25 Answers)</p>
+    </div>
+
+
+  </div>
+  <div class="container">
+    <!-- Your existing HTML content -->
+    <!-- ... -->
+
+    <div class="records-container" id="recordsContainer">
+      <h3>Previous Answer Records:</h3>
+      <ul class="records-list" id="recordsList"></ul>
+    </div>
+  </div>
+
+
+  <script>
+    let startTime, endTime;
+    localStorage.setItem('questionNo', 0)
+
+
+    function generateQuestion(operation, difficulty) {
+      const maxLimit = Math.pow(10, parseInt(difficulty)) - 1;
+      const minLimit = Math.pow(10, parseInt(difficulty) - 1);
+
+      let num1, num2;
+
+      switch (operation) {
+        case 'addition':
+          num1 = Math.floor(Math.random() * maxLimit);
+          num2 = Math.floor(Math.random() * maxLimit);
+          operator = '+'
+          break;
+        case 'subtraction':
+          num1 = Math.floor(Math.random() * maxLimit);
+          num2 = Math.floor(Math.random() * (num1 - minLimit)) + minLimit;
+          operator = '-'
+          break;
+        case 'multiplication':
+          num1 = Math.floor(Math.random() * (maxLimit - minLimit + 1)) + minLimit;
+          num2 = Math.floor(Math.random() * (maxLimit - minLimit + 1)) + minLimit;
+          operator = '*'
+          break;
+        case 'division':
+          num2 = Math.floor(Math.random() * (maxLimit - minLimit + 1)) + minLimit;
+          //num1 = num2 * Math.floor(Math.random() * (maxLimit / num2 - minLimit / num2 + 1)) + minLimit;
+          function getRandomMultipleBiggerThanNum2() {
+            const min = Math.ceil(minLimit / num2);
+            const max = Math.floor(maxLimit / num2);
+            console.log(num2, min, minLimit, max, maxLimit)
+            const randomMultiplier = Math.floor(Math.random() * (max - min + 1)) + min;
+            return num2 * Math.max(randomMultiplier, 2); // Ensures num1 is always a bigger multiple of num2
+          }
+          num1 = parseInt(getRandomMultipleBiggerThanNum2())
+
+          break;
+        default:
+          num1 = 100;
+          num2 = 2;
+      }
+      const question = `${num1} ${operation === 'division' ? '/' :operator} ${num2}`;
+      document.getElementById('question').innerText = question;
+      const questionNo = parseInt(JSON.parse(localStorage.getItem('questionNo')))
+      localStorage.setItem('questionNo', questionNo + 1)
+
+      //localStorage.setItem('question',JSON.stringify(question));
+      localStorage.setItem('answer', JSON.stringify(eval(question)));
+      startTime = new Date().getTime();
+    }
+
+    localStorage.setItem('totalRecords', 0);
+
+    function updateTotalRecords() {
+      let totalRecords = localStorage.getItem('totalRecords');
+      localStorage.setItem('totalRecords', parseInt(JSON.parse(totalRecords)) + 1)
+
+    }
+
+    function checkAnswer() {
+      endTime = new Date().getTime();
+      const userAnswer = parseInt(document.getElementById('userAnswer').value);
+      const correctAnswer = parseInt(localStorage.getItem('answer'));
+      question = document.getElementById('question').innerText;
+
+      if (!isNaN(userAnswer)) {
+        const timeTaken = (endTime - startTime) / 1000; // Calculate time in seconds
+        document.getElementById('timeTaken').innerText = `Time taken: ${timeTaken.toFixed(2)} seconds`;
+        document.getElementById('result').style.color = userAnswer === correctAnswer ? 'green' : 'red';
+
+        if (userAnswer === correctAnswer) {
+          document.getElementById('result').innerText = 'Correct!';
+
+        } else {
+          document.getElementById('result').innerText = 'Incorrect. Try again!';
+        }
+        const previousAnswers = localStorage.getItem('previousAnswers') ? JSON.parse(localStorage.getItem('previousAnswers')) : [];
+        const isCorrect = userAnswer == correctAnswer ? true : false;
+        localStorage.getItem('questionNo') ? questionNo = localStorage.getItem('questionNo') : localStorage.setItem('questionNo', 1)
+        previousAnswers.push({ questionNo, question, userAnswer, correctAnswer, timeTaken: timeTaken.toFixed(2), isCorrect });
+        localStorage.setItem('previousAnswers', JSON.stringify(previousAnswers));
+        displayPreviousAnswers();
+      } else {
+        document.getElementById('result').innerText = 'Please enter a valid number!';
+      }
+
+      document.getElementById('userAnswer').value = '';
+      if (userAnswer === correctAnswer) generateQuestion(
+        document.getElementById('operation').value,
+        document.getElementById('difficulty').value
+      );
+
+
+      updateProgressBar()
+    }
+
+    function displayPreviousAnswers() {
+      const previousAnswers = localStorage.getItem('previousAnswers');
+      if (previousAnswers) {
+        const answers = JSON.parse(previousAnswers);
+        const previousAnswersDiv = document.getElementById('previousAnswers');
+        previousAnswersDiv.innerHTML = '\n<h2>Previous Answers:</h2>\n';
+        answers.forEach((answer, index) => {
+          color = answer.userAnswer == answer.correctAnswer ? 'green' : 'red';
+          previousAnswersDiv.innerHTML += `<div><p>Question#${index + 1}: ${answer.question}</p> <p>Correct answer : ${answer.correctAnswer},</p><p> Time taken : ${answer.timeTaken} seconds</p><p style="color:${color}">your answer = ${answer.userAnswer}</p></div>\n`;
+
+        });
+
+      }
+    }
+
+
+    generateQuestion('addition', 1);
+    displayPreviousAnswers();
+
+    function togglePreviousAnswers() {
+      const previousAnswersDiv = document.getElementById('previousAnswers');
+      if (previousAnswersDiv.style.display === 'none') {
+        previousAnswersDiv.style.display = 'flex';
+      } else {
+        previousAnswersDiv.style.display = 'none';
+      }
+    }
+
+    function clearPreviousAnswers(deletePreviousAnswers) {
+      if (!deletePreviousAnswers) {
+        console.log(deletePreviousAnswers)
+        updateTotalRecords()
+        updateRecords()
+      }
+      if (displayPreviousAnswers) {localStorage.setItem('questionNo', parseInt(localStorage.getItem('questionNo')) - (JSON.parse(localStorage.getItem('previousAnswers'))).length)}
+
+      localStorage.removeItem('previousAnswers');
+      document.getElementById('previousAnswers').innerHTML = '<h2>Previous Answers:</h2>';
+    }
+
+    // Function to calculate success rate based on last 25 answers
+    function calculateSuccessRate() {
+
+      const previousAnswers = JSON.parse(localStorage.getItem('previousAnswers')) || [];
+      const correctAnswers = previousAnswers.filter(answer => answer.isCorrect).length;
+      const successRate = (correctAnswers / 10) * 100; // Assuming 25 is the total questions
+      return successRate;
+    }
+
+    // Function to update the progress bar width
+    function updateProgressBar() {
+      const successRate = calculateSuccessRate();
+      const successProgressBar = document.getElementById('successProgressBar');
+      successProgressBar.style.width = `${successRate}%`;
+      // Clear previous answers after every 25 answers
+      const previousAnswers = JSON.parse(localStorage.getItem('previousAnswers')) || [];
+      if (previousAnswers.length % 10 === 0) {
+        successRate > 0 ? alert(`Congratulation,your success rate is ${successRate.toFixed(2)}, over last 10 question,  \nall previousAnswers will be cleared \n ${document.getElementById('previousAnswers').innerText}`) : console.warn('no previous answers are correct');
+
+        clearPreviousAnswers(false)
+
+
+      }
+    }
+
+    function showRecordsClearedNotification() {
+      const notification = document.getElementById('recordsClearedNotification');
+      notification.classList.add('show');
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000); // Adjust the duration as needed (in milliseconds)
+    }
+  </script>
+
+  <script>
+    function showRecords() {
+      const previousAnswers = JSON.parse(localStorage.getItem('previousAnswers')) || [];
+      const recordsList = document.getElementById('recordsList');
+
+      previousAnswers.forEach(answer => {
+        const item = document.createElement('li');
+        item.innerHTML = `Question#${answer.questionNo}: ${answer.question} <br>Correct answer : ${answer.correctAnswer}<br>Your Answer: ${answer.userAnswer},<br><span style="color:${answer.isCorrect?'green':'red'}">Correct: ${answer.isCorrect ? 'Yes' : 'No'}</span> `;
+
+        //item.innerHTML = `<p>Question#${answer.questionNo}: ${answer.question}</p> <p>Correct answer : ${answer.correctAnswer}</p><p>Answer: ${answer.userAnswer}</p><p>, Correct: ${answer.isCorrect ? 'Yes' : 'No'}</p>`;
+
+
+        recordsList.appendChild(item);
+      });
+    }
+
+    /*function clearAndShowRecords() {
+      localStorage.removeItem('previousAnswers');
+      showRecords();
+    }
+*/
+
+    function updateRecords() {
+      showRecords()
+      const previousAnswers = JSON.parse(localStorage.getItem('previousAnswers')) || [];
+      localStorage.setItem('previousAnswers', JSON.stringify(previousAnswers));
+      totalRecords = parseInt(JSON.parse(localStorage.getItem('totalRecords')))
+
+
+      if (totalRecords >= 10) {
+        const recordsList = document.getElementById('recordsList');
+        recordsList.innerHTML = ''
+        localStorage.setItem('totalRecords', 0);
+        showRecordsClearedNotification()
+
+
+      }
+
+    }
+  </script>
+
+
+
+</body>
+
+</html>

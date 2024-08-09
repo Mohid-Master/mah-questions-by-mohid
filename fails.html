@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Math Questions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 80%;
+      margin: 5% auto;
+      background-color: #fff;
+      padding: 2%;
+      border-radius: 2%;
+      box-shadow: 0 0 1em rgba(0, 0, 0, 0.1);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-items: center;
+    }
+
+    header img {
+      max-width: 15%;
+      margin-bottom: 1%;
+    }
+
+    header h1 {
+      font-size: 2em;
+      margin-bottom: 2%;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 2%;
+    }
+
+    select,
+    input[type="number"],
+    button {
+      width: 90%;
+      padding: 2%;
+      margin-bottom: 2%;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #question {
+      font-size: 1.5em;
+      margin-bottom: 2%;
+    }
+
+    #result {
+      margin-top: 4%;
+      font-weight: bold;
+    }
+
+    @media only screen and (min-width: 768px) {
+      .container {
+        width: 60%;
+      }
+
+      select,
+      input[type="number"],
+      button {
+        width: auto;
+      }
+    }
+
+    #previousAnswers {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #previousAnswers h2 {
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+
+    #previousAnswers p {
+      margin: 5px 0;
+    }
+
+    /* Additional styles for previous answers toggle */
+    #toggleButton {
+      margin-bottom: 10px;
+      padding: 8px 15px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #previousAnswers {
+      display: none;
+      flex-direction: column-reverse;
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #previousAnswers h2 {
+      order: 1;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+
+    #previousAnswers div {
+      margin: 5px 0;
+    }
+
+    #clearButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* Your existing CSS styles here */
+    /* Additional styles for progress bar */
+    .progress-container {
+      margin-top: 20px;
+      width: 80%;
+      height: 30px;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background-color: #3498db;
+      transition: width 0.5s ease-in-out;
+    }
+
+    /* Your existing CSS styles here */
+    /* Additional styles for notifications and answers container */
+    .notification {
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 5px;
+    }
+
+    .answers-container {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <header>
+      <img src="Logo.png" alt="Logo">
+      <h1>Math Questions</h1>
+    </header>
+    <div class="question-section">
+      <label for="operation">Select an operation:</label>
+      <select id="operation">
+        <option value="addition">Addition (+)</option>
+        <option value="subtraction">Subtraction (-)</option>
+        <option value="multiplication">Multiplication (*)</option>
+        <option value="division">Division (/)</option>
+      </select>
+      <label for="difficulty">Select difficulty:</label>
+      <select id="difficulty">
+        <option value="1">1 Digit</option>
+        <option value="2">2 Digits</option>
+        <option value="3">3 Digits</option>
+        <option value="4">4 Digits</option>
+        <option value="5">5 Digits</option>
+      </select>
+      <div id="question"></div>
+      <input type="number" id="userAnswer" placeholder="Your Answer">
+      <button onclick="checkAnswer()">Submit</button>
+      <div id="result"></div>
+      <div id="timeTaken"></div>
+      <button id="toggleButton" onclick="togglePreviousAnswers()">Toggle Previous Answers</button>
+      <div id="previousAnswers">
+        <h2>Previous Answers:</h2>
+      </div>
+
+      <button id="clearButton" onclick="clearPreviousAnswers()">Clear Previous Answers</button>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar" id="successProgressBar" style="width: 0;"></div>
+      <p>Success Rate (Last 25 Answers)</p>
+    </div>
+    <!-- Your existing HTML content -->
+    <!-- ... -->
+
+    <!-- Notifications and answers container -->
+    <div class="notification" id="notification">
+      <p>No notifications yet.</p>
+    </div>
+
+    <div class="answers-container" id="answersContainer">
+      <h2>Last 20 Answers</h2>
+      <ul id="last20Answers"></ul>
+      <p>Correct Answers: <span id="correctAnswers">0</span></p>
+      <p>Success Rate: <span id="successRate">0%</span></p>
+    </div>
+
+
+  </div>
+
+  <script>
+    let startTime, endTime;
+
+    function generateQuestion(operation, difficulty) {
+      const maxLimit = Math.pow(10, parseInt(difficulty)) - 1;
+      const minLimit = Math.pow(10, parseInt(difficulty) - 1);
+
+      let num1, num2;
+
+      switch (operation) {
+        case 'addition':
+          num1 = Math.floor(Math.random() * maxLimit);
+          num2 = Math.floor(Math.random() * maxLimit);
+          operator = '+'
+          break;
+        case 'subtraction':
+          num1 = Math.floor(Math.random() * maxLimit);
+          num2 = Math.floor(Math.random() * (num1 - minLimit)) + minLimit;
+          operator = '-'
+          break;
+        case 'multiplication':
+          num1 = Math.floor(Math.random() * (maxLimit - minLimit + 1)) + minLimit;
+          num2 = Math.floor(Math.random() * (maxLimit - minLimit + 1)) + minLimit;
+          operator = '*'
+          break;
+        case 'division':
+          num2 = Math.floor(Math.random() * (maxLimit - minLimit + 1)) + minLimit;
+          num1 = num2 * Math.floor(Math.random() * (maxLimit / num2 - minLimit / num2 + 1)) + minLimit;
+          break;
+        default:
+          num1 = 90;
+          num2 = 10;
+      }
+      const question = `${num1} ${operation === 'division' ? '÷' :operator} ${num2}`;
+      document.getElementById('question').innerText = question;
+      //localStorage.setItem('question',JSON.stringify(question));
+      localStorage.setItem('answer', JSON.stringify(eval(question)));
+      startTime = new Date().getTime();
+    }
+
+
+    function checkAnswer() {
+      endTime = new Date().getTime();
+      const userAnswer = parseInt(document.getElementById('userAnswer').value);
+      const correctAnswer = parseInt(localStorage.getItem('answer'));
+      question = document.getElementById('question').innerText;
+
+      if (!isNaN(userAnswer)) {
+        const timeTaken = (endTime - startTime) / 1000; // Calculate time in seconds
+        document.getElementById('timeTaken').innerText = `Time taken: ${timeTaken.toFixed(2)} seconds`;
+        document.getElementById('result').style.color = userAnswer === correctAnswer ? 'green' : 'red';
+
+        if (userAnswer === correctAnswer) {
+          document.getElementById('result').innerText = 'Correct!';
+        } else {
+          document.getElementById('result').innerText = 'Incorrect. Try again!';
+        }
+
+        const previousAnswers = localStorage.getItem('previousAnswers') ? JSON.parse(localStorage.getItem('previousAnswers')) : [];
+        const isCorrect = userAnswer == correctAnswer ? true : false;
+
+        previousAnswers.push({ question, userAnswer, correctAnswer, timeTaken: timeTaken.toFixed(2), isCorrect });
+        localStorage.setItem('previousAnswers', JSON.stringify(previousAnswers));
+        displayPreviousAnswers();
+      } else {
+        document.getElementById('result').innerText = 'Please enter a valid number!';
+      }
+
+      document.getElementById('userAnswer').value = '';
+      generateQuestion(
+        document.getElementById('operation').value,
+        document.getElementById('difficulty').value
+      );
+      updateProgressBar()
+      handleSubmission()
+    }
+
+    function displayPreviousAnswers() {
+      const previousAnswers = localStorage.getItem('previousAnswers');
+      if (previousAnswers) {
+        const answers = JSON.parse(previousAnswers);
+        const previousAnswersDiv = document.getElementById('previousAnswers');
+        previousAnswersDiv.innerHTML = '\n<h2>Previous Answers:</h2>\n';
+        answers.forEach((answer, index) => {
+          color = answer.userAnswer == answer.correctAnswer ? 'green' : 'red';
+          previousAnswersDiv.innerHTML += `<div><p>Question#${index + 1}: ${answer.question}</p> <p>Correct answer : ${answer.correctAnswer},</p><p> Time taken : ${answer.timeTaken} seconds</p><p style="color:${color}">your answer = ${answer.userAnswer}</p></div>\n`;
+        });
+
+      }
+    }
+
+
+    generateQuestion('addition', 1);
+    displayPreviousAnswers();
+
+    function togglePreviousAnswers() {
+      const previousAnswersDiv = document.getElementById('previousAnswers');
+      if (previousAnswersDiv.style.display === 'none') {
+        previousAnswersDiv.style.display = 'flex';
+      } else {
+        previousAnswersDiv.style.display = 'none';
+      }
+    }
+
+    function clearPreviousAnswers() {
+      localStorage.removeItem('previousAnswers');
+      document.getElementById('previousAnswers').innerHTML = '<h2>Previous Answers:</h2>';
+    }
+
+    // Function to calculate success rate based on last 25 answers
+    function calculateSuccessRate() {
+
+      const previousAnswers = JSON.parse(localStorage.getItem('previousAnswers')) || [];
+      const correctAnswers = previousAnswers.filter(answer => answer.isCorrect).length;
+      const successRate = (correctAnswers / 20) * 100; // Assuming 25 is the total questions
+      return successRate;
+    }
+
+    // Function to update the progress bar width
+    function updateProgressBar() {
+      const successRate = calculateSuccessRate();
+      const successProgressBar = document.getElementById('successProgressBar');
+      successProgressBar.style.width = `${successRate}%`;
+      // Clear previous answers after every 25 answers
+      const previousAnswers = JSON.parse(localStorage.getItem('previousAnswers')) || [];
+      if (previousAnswers.length % 20 === 0) {
+        successRate > 0 ? alert(`Congratulation,your success rate is ${successRate.toFixed(2)}, over last 20 question,  \nall previousAnswers will be cleared \n ${document.getElementById('previousAnswers').innerText}`) : console.warn('no previous answers');
+
+        clearPreviousAnswers()
+
+
+      }
+    }
+  </script>
+
+</body>
+
+</html>
+
+Certainly! Here's a more concise version of the JavaScript code by merging some functionalities and simplifying the update functions:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Math Questions</title>
+  <style>
+    /* Your existing CSS styles here */
+    /* Additional styles for notifications and answers container */
+    .notification {
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 5px;
+    }
+
+    .answers-container {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <script>
+    function showNotifications() {
+      const notificationDiv = document.getElementById('notification');
+      const notificationCount = parseInt(localStorage.getItem('notificationCount')) || 0;
+      const currentCount = notificationCount + 1;
+
+      if (currentCount % 2 === 0) {
+        notificationDiv.innerHTML = `<p>Notification: You have completed ${currentCount} answers!</p>`;
+        console.log('working')
+        localStorage.setItem('notificationCount', currentCount);
+      }
+    }
+
+
+    function updateLast20Answers() {
+      const previousAnswers = JSON.parse(localStorage.getItem('previousAnswers')) || [];
+      const last20Answers = previousAnswers.slice(-20);
+      const last20AnswersList = document.getElementById('last20Answers');
+      last20AnswersList.innerHTML = last20Answers.map(answer => `<li>Answer: ${answer.userAnswer}, Correct: ${answer.isCorrect ? 'Yes' : 'No'}</li>`).join('');
+
+      const correctAnswers = previousAnswers.filter(answer => answer.isCorrect).length;
+      const successRate = ((correctAnswers / 20) * 100 || 0).toFixed(2);
+      document.getElementById('correctAnswers').textContent = correctAnswers;
+      document.getElementById('successRate').textContent = `${successRate}%`;
+    }
+
+    function handleSubmission() {
+      // Your existing code for submitting answers...
+      // ...
+
+      showNotifications();
+      updateLast20Answers();
+    }
+
+    window.onload = function() {
+      updateLast20Answers();
+      showNotifications()
+    };
+  </script>
+
+</body>
+
+</html>
+
+<!--Tab to edit
+</tag>
+```
+
+This revised code maintains the functionality of displaying notifications after every 20 answers and showing the last 20 answers, the number of correct answers, and the success rate. Adjust the `handleSubmission()` function with your existing logic for submitting answers to update the local storage accordingly.
+Wa alaikum assalam! Sure, I can help you implement that feature. Below is an example of how you can display notifications after every 20 answers, including a div that shows the last 20 answers, the number of correct answers, and the success rate:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Math Questions</title>
+  <style>
+    /* Your existing CSS styles here */
+    /* Additional styles for notifications and answers container */
+    .notification {
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 5px;
+    }
+
+    .answers-container {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <!-- Your existing HTML content -->
+<!-- ... -->
+
+<!-- Notifications and answers container 
+    
+    <div class="notification" id="notification">
+      <p>No notifications yet.</p>
+    </div>
+
+    <div class="answers-container" id="answersContainer">
+      <h2>Last 20 Answers</h2>
+      <ul id="last20Answers"></ul>
+      <p>Correct Answers: <span id="correctAnswers">0</span></p>
+      <p>Success Rate: <span id="successRate">0%</span></p>
+    </div>
+  </div>
+
+  <script>
+    // Function to show notifications after every 20 answers
+    function showNotifications() {
+      const notificationDiv = document.getElementById('notification');
+      const notificationCount = parseInt(localStorage.getItem('notificationCount')) || 0;
+      const currentCount = notificationCount + 1;
+
+      if (currentCount % 20 === 0) {
+        notificationDiv.innerHTML = `<p>Notification: You have completed ${currentCount} answers!</p>`;
+        localStorage.setItem('notificationCount', currentCount);
+      }
+    }
+
+    // Function to update last 20 answers, correct answers, and success rate
+    function updateLast20Answers() {
+      const previousAnswers = JSON.parse(localStorage.getItem('previousAnswers')) || [];
+      const last20Answers = previousAnswers.slice(-20);
+      const last20AnswersList = document.getElementById('last20Answers');
+      last20AnswersList.innerHTML = '';
+
+      last20Answers.forEach(answer => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `Answer: ${answer.userAnswer}, Correct: ${answer.isCorrect ? 'Yes' : 'No'}`;
+        last20AnswersList.appendChild(listItem);
+      });
+
+      const correctAnswers = previousAnswers.filter(answer => answer.isCorrect).length;
+      const successRate = ((correctAnswers / 20) * 100).toFixed(2);
+      document.getElementById('correctAnswers').textContent = correctAnswers;
+      document.getElementById('successRate').textContent = `${successRate}%`;
+    }
+
+    // Function to handle submission and display notifications
+    function handleSubmission() {
+      // Your existing code for submitting answers...
+      // ...
+
+      // Call showNotifications function after each answer submission
+      showNotifications();
+      updateLast20Answers();
+    }
+
+    // Call updateLast20Answers function on page load
+    window.onload = function() {
+      updateLast20Answers();
+    };
+  </script>
+
+</body>
+
+</html>
+```
+
+This code includes a div for displaying notifications after every 20 answers and another div showing the last 20 answers, the number of correct answers, and the success rate. You'll need to integrate the logic for handling answer submissions (`handleSubmission()`) and storing previous answers in the local storage to make this code fully functional. Adjust the logic inside `handleSubmission()` according to your existing code to update the local storage with each new answer.
